@@ -6,6 +6,14 @@ import json
 app = Flask(__name__)
 CORS(app)
 
+print('Server started. Loading model from bif file...')
+
+bn = gum.loadBN('assets/bayes_credit_k2_hill_climb_with_restricted.bif')
+    
+print('model loaded from bif file')
+
+inference = gum.VariableElimination(bn)
+
 @app.route("/")
 def index():
     nodes = bn.names()
@@ -44,11 +52,4 @@ def inf():
     return result
 
 if __name__ == "__main__":
-    print('Server started. Loading model from bif file...')
-
-    bn = gum.loadBN('assets/bayes_credit_k2_hill_climb_with_restricted.bif')
-    
-    print('model loaded from bif file')
-
-    inference = gum.VariableElimination(bn)
     app.run(host="0.0.0.0")
