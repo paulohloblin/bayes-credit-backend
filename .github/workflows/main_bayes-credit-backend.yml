@@ -44,7 +44,6 @@ jobs:
       
       - name: Remove virtual environment and dependencies
         run: |
-          deactivate
           rm -rf venv
 
   deploy:
