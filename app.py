@@ -3,7 +3,6 @@ from flask_cors import CORS
 from pgmpy.inference import VariableElimination
 from pgmpy.readwrite.BIF import BIFReader
 import json
-import os
 
 app = Flask(__name__)
 CORS(app)
@@ -33,17 +32,10 @@ def inf():
         
     return result
 
-@app.route("/savepositions", methods=['POST'])
-def savepositions():
-    positions = request.json
-    with open('bayes-credit/src/assets/positions.json', 'w') as f:
-        json.dump(positions, f)
-    return jsonify('OK')
-
 if __name__ == "__main__":
     print('Server started. Loading model from bif file...')
 
-    reader = BIFReader('bayes_credit_k2_hill_climb_with_restricted.bif')
+    reader = BIFReader('assets/bayes_credit_k2_hill_climb_with_restricted.bif')
     
     print('model loaded from bif file')
 
