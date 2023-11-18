@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 @app.route("/")
-def network():
+def index():
     return jsonify('Ok')
 
 @app.route("/network")
