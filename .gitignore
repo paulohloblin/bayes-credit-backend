@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local development configuration
+.env
+
+# Flask generated files
+instance/
+.webassets-cache
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+
+# Compiled Python files
+*.pyc
+
+# Dependency directories
+lib/
+lib64/
+bin/
+include/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# .DS_Store files
+.DS_Store
