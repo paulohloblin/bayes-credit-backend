@@ -51,4 +51,5 @@ if __name__ == "__main__":
     print('model loaded from bif file')
 
     inference = gum.VariableElimination(bn)
+    app.debug = True
     app.run()
