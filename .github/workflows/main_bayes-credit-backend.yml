@@ -42,9 +42,9 @@ jobs:
             release.zip
             !venv/
       
-      - name: Remove virtual environment and dependencies
+      - name: Remove installed packages (keep the virtual environment)
         run: |
-          rm -rf venv
+          pip freeze | xargs pip uninstall -y
 
   deploy:
     runs-on: ubuntu-latest

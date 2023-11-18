@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from pgmpy.inference import VariableElimination
-from pgmpy.readwrite.BIF import BIFReader
+import pyAgrum as gum
 import json
 
 app = Flask(__name__)
@@ -9,11 +8,15 @@ CORS(app)
 
 @app.route("/network")
 def network():
-    return jsonify(bn.states)
+    nodes = bn.names()
+    states = {node: bn.variable(node).labels() for node in nodes}
+    return jsonify(states)
 
 @app.route("/edges")
 def edges():
-    return list(bn.edges())
+    arcs = bn.arcs()
+    edges = [(bn.variable(arc[0]).name(), bn.variable(arc[1]).name()) for arc in arcs]
+    return jsonify(edges)
 
 @app.route("/inference")
 def inf():
@@ -27,20 +30,19 @@ def inf():
     
     result = {}
     for variable in req_variables:
-        query = inference.query(variables=[variable], evidence=req_evidence)
-        result[variable] = dict(zip(query.state_names[variable], query.values))
+        inference.setEvidence(req_evidence)
+        inference.makeInference()
+        query = inference.posterior(variable)
+        result[variable] = dict(zip(bn.variable(variable).labels(), query.tolist()))
         
     return result
 
 if __name__ == "__main__":
     print('Server started. Loading model from bif file...')
 
-    reader = BIFReader('assets/bayes_credit_k2_hill_climb_with_restricted.bif')
+    bn = gum.loadBN('assets/bayes_credit_k2_hill_climb_with_restricted.bif')
     
     print('model loaded from bif file')
 
-    bn = reader.get_model()
-    print('model deserialized')
-
-    inference = VariableElimination(bn)
+    inference = gum.VariableElimination(bn)
     app.run()
