@@ -8,7 +8,9 @@ CORS(app)
 
 @app.route("/")
 def index():
-    return jsonify('Ok')
+    nodes = bn.names()
+    states = {node: bn.variable(node).labels() for node in nodes}
+    return jsonify(states)
 
 @app.route("/network")
 def network():
