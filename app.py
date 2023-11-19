@@ -60,7 +60,7 @@ def savepositions():
 
 
 @app.route("/getpositions", methods=['GET'])
-def savepositions():
+def getpositions():
     with open('assets/positions.json', 'r') as f:
         positions = json.load(f)
     return jsonify(positions)
