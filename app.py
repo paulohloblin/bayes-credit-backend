@@ -51,19 +51,5 @@ def inf():
         
     return result
 
-@app.route("/savepositions", methods=['POST'])
-def savepositions():
-    positions = request.json
-    with open('assets/positions.json', 'w') as f:
-        json.dump(positions, f)
-    return jsonify('OK')
-
-
-@app.route("/getpositions", methods=['GET'])
-def getpositions():
-    with open('assets/positions.json', 'r') as f:
-        positions = json.load(f)
-    return jsonify(positions)
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run()
