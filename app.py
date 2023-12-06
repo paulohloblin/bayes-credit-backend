@@ -48,8 +48,9 @@ def inf():
         inference.makeInference()
         query = inference.posterior(variable)
         result[variable] = dict(zip(bn.variable(variable).labels(), query.tolist()))
-        
-    return result
+    
+    return jsonify(result)
 
 if __name__ == "__main__":
+    app.json.sort_keys = False
     app.run()
