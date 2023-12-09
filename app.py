@@ -1,36 +1,19 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import pyAgrum as gum
+from pgmpy.inference import VariableElimination
+from pgmpy.readwrite.BIF import BIFReader
 import json
 
 app = Flask(__name__)
 CORS(app)
 
-print('Server started. Loading model from bif file...')
-
-bn = gum.loadBN('assets/bayes_credit_k2_hill_climb_with_restricted.bif')
-    
-print('model loaded from bif file')
-
-inference = gum.VariableElimination(bn)
-
-@app.route("/")
-def index():
-    nodes = bn.names()
-    states = {node: bn.variable(node).labels() for node in nodes}
-    return jsonify(states)
-
 @app.route("/network")
 def network():
-    nodes = bn.names()
-    states = {node: bn.variable(node).labels() for node in nodes}
-    return jsonify(states)
+    return jsonify(bn.states)
 
 @app.route("/edges")
 def edges():
-    arcs = bn.arcs()
-    edges = [(bn.variable(arc[0]).name(), bn.variable(arc[1]).name()) for arc in arcs]
-    return jsonify(edges)
+    return list(bn.edges())
 
 @app.route("/inference")
 def inf():
@@ -44,13 +27,20 @@ def inf():
     
     result = {}
     for variable in req_variables:
-        inference.setEvidence(req_evidence)
-        inference.makeInference()
-        query = inference.posterior(variable)
-        result[variable] = dict(zip(bn.variable(variable).labels(), query.tolist()))
-    
-    return jsonify(result)
+        query = inference.query(variables=[variable], evidence=req_evidence)
+        result[variable] = dict(zip(query.state_names[variable], query.values))
+        
+    return result
 
 if __name__ == "__main__":
-    app.json.sort_keys = False
+    print('Server started. Loading model from bif file...')
+
+    reader = BIFReader('bayes_credit_k2_hill_climb_with_restricted.bif')
+    
+    print('model loaded from bif file')
+
+    bn = reader.get_model()
+    print('model deserialized')
+
+    inference = VariableElimination(bn)
     app.run()
