@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 import pyAgrum as gum
 import json
@@ -14,25 +14,26 @@ print('model loaded from bif file')
 
 inference = gum.VariableElimination(bn)
 
-@app.route("/")
+@app.route("/", methods=['GET'])
 def index():
-    nodes = bn.names()
-    states = {node: bn.variable(node).labels() for node in nodes}
-    return jsonify(states)
+    routes = {}
+    for route in app.url_map.iter_rules():
+        routes[route.endpoint] = f"{request.url_root.strip('/')}{route}"
+    return make_response(jsonify(routes), 200)
 
-@app.route("/network")
+@app.route("/network", methods=['GET'])
 def network():
     nodes = bn.names()
     states = {node: bn.variable(node).labels() for node in nodes}
-    return jsonify(states)
+    return make_response(jsonify(states), 200)
 
-@app.route("/edges")
+@app.route("/edges", methods=['GET'])
 def edges():
     arcs = bn.arcs()
     edges = [(bn.variable(arc[0]).name(), bn.variable(arc[1]).name()) for arc in arcs]
-    return jsonify(edges)
+    return make_response(jsonify(edges), 200)
 
-@app.route("/inference")
+@app.route("/inference", methods=['GET'])
 def inf():
     req_variables = request.args.getlist('query')
     req_evidence = request.args.get('evidence')
@@ -49,7 +50,11 @@ def inf():
         query = inference.posterior(variable)
         result[variable] = dict(zip(bn.variable(variable).labels(), query.tolist()))
     
-    return jsonify(result)
+    return make_response(jsonify(result), 200)
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return make_response(jsonify(error=str(e)), 500)
 
 if __name__ == "__main__":
     app.json.sort_keys = False
